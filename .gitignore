@@ -2,9 +2,9 @@
 *.pkl
 *.pyc
 *.swp
-Kitti/testing
-Kitti/training
+src/Kitti/testing
+src/Kitti/training
 legacy
-eval/video/2011_09_26
+src/eval/video/2011_09_26
 .idea/
 .vscode/
