@@ -113,6 +113,8 @@ def plot_3d_box(img, cam_to_img, ry, dimension, center):
     cv2.line(img, front_mark[0], front_mark[3], cv_colors.BLUE.value, 1)
     cv2.line(img, front_mark[1], front_mark[2], cv_colors.BLUE.value, 1)
 
+    return img
+
 def plot_2d_box(img, box_2d):
     # create a square from the corners
     pt1, pt2, pt3, pt4 = create_2d_box(box_2d)

@@ -4,6 +4,7 @@
 *.swp
 src/Kitti/testing
 src/Kitti/training
+kitti/
 legacy
 src/eval/video/2011_09_26
 .idea/

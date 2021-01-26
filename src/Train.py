@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from torch_lib.Dataset import *
 from torch_lib.Model import Model, OrientationLoss
 

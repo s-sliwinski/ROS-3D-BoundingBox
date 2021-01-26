@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 This script will use the 2D box from the label rather than from YOLO,
 but will still use the neural nets to get the 3D position and plot onto the
