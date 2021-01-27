@@ -11,9 +11,10 @@ import rospy
 # from tf.transformations import quaternion_from_euler as q
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from sensor_msgs import point_cloud2 as pc2
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Float64MultiArray
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
+from geometry_msgs.msg import Point, Polygon
 
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -82,8 +83,8 @@ class MakeBoundingBox():
         self.img_sub = rospy.Subscriber("/kitti/camera_color_right/image_raw", Image, self.rgb_callback)
         #self.pcl_sub = rospy.Subscriber("/camera/depth_registered/points", PointCloud2, self.pcl_callback)
         # publishers
-        self.img_detected_pub = rospy.Publisher("/img_detected_frame", Image, queue_size=100)
-        #self.marker_array_pub= rospy.Publisher("/img_detected_markers", MarkerArray, queue_size=100)
+        self.img_detected_pub = rospy.Publisher("ROS_3D_BBox/img_detected_frame", Image, queue_size=100)
+        self.location_pub = rospy.Publisher("ROS_3D_BBox/location_array", Polygon, queue_size=100)
         self.rate = rospy.Rate(1)
 
 
@@ -155,16 +156,24 @@ class MakeBoundingBox():
             alpha -= np.pi
 
             location, ret_img = self.plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
-            locations.append(location)
+            loc_point = Point()
+            loc_point.x, loc_point.y, loc_point.z = location[0], location[1], location[2]
+            locations.append(loc_point)
             # print('Estimated pose: %s'%location)
+            
 
         try:
             img_msg = self.bridge.cv2_to_imgmsg(ret_img, 'bgr8')
         except CvBridgeError as e:
             print(e)
 
-        self.img_detected_pub.publish(img_msg)
+        loc_msg = Polygon(locations)
+        
+        
+        
 
+        self.img_detected_pub.publish(img_msg)
+        self.location_pub.publish(loc_msg)
         print("\n")
         print('Got %s poses in %.3f seconds'%(len(detections), time.time() - start_time))
         print('-------------')
