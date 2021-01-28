@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ROS-3D-BoundingBox</name>
+  <name>ROS_3D_BoundingBox</name>
   <version>0.0.0</version>
-  <description>The ROS-3D-BoundingBox package</description>
+  <description>The ROS_3D_BoundingBox package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -52,13 +52,16 @@
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

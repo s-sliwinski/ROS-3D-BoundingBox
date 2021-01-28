@@ -155,6 +155,7 @@ class MakeBoundingBox():
             alpha += self.angle_bins[argmax]
             alpha -= np.pi
 
+            print(dim)
             location, ret_img = self.plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
             loc_point = Point()
             loc_point.x, loc_point.y, loc_point.z = location[0], location[1], location[2]

@@ -11,7 +11,7 @@ class MarkerNode():
     def __init__(self):
         rospy.loginfo('Marker Node running...')
         self.markers_count = 0
-        self.MARKERS_MAX = 15
+        self.MARKERS_MAX = 10
         self.marker_array = MarkerArray()
 
         self.pcl = None
@@ -25,6 +25,7 @@ class MarkerNode():
         self.pcl = pcl_data
 
     def construct_marker(self, points_coordinates):
+        print(points_coordinates.points)
         if(len(points_coordinates.points) != 0):
             for point_pos in points_coordinates.points:
                 marker = Marker()
