@@ -20,6 +20,7 @@ class MarkerNode():
         self.MARKERS_MAX = 10
         self.marker_array = MarkerArray()
 
+        self.tf_pub = tf.TransformBroadcaster()
         self.pcl = None
 
         self.loc_sub = rospy.Subscriber('ROS_3D_BBox/location_array', LocationArray, self.construct_marker)
@@ -50,7 +51,7 @@ class MarkerNode():
                 marker.color.g = 1.0
                 marker.color.b = 0.0
 
-                yaw_angle = np.rad2deg(point_pos.alpha + point_pos.theta_ray)
+                yaw_angle = point_pos.alpha + point_pos.theta_ray + (np.pi/2)
                 q = quaternion_from_euler(0,0,yaw_angle)
 
                 marker.pose.orientation.x = q[0]
@@ -68,10 +69,15 @@ class MarkerNode():
                     self.marker_array.markers.pop(0)
 
                 self.marker_array.markers.append(marker)
-
+                
                 id = 0
                 for m in self.marker_array.markers:
                     m.id = id
+                    self.tf_pub.sendTransform((m.pose.position.x, m.pose.position.y, m.pose.position.z),
+                    (m.pose.orientation.x,
+                    m.pose.orientation.y,
+                    m.pose.orientation.z,
+                    m.pose.orientation.w), rospy.Time.now(), 'objec nr:'+str(m.id), 'velo_link')
                     id += 1
 
                 self.markers_count += 1
