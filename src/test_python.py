@@ -4,6 +4,7 @@ import sys
 import rospy
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from cv_bridge import CvBridge, CvBridgeError
+from ROS_3D_BoundingBox.msg import Location, LocationArray
 
 
 class TestNode():

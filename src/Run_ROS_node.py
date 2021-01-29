@@ -15,6 +15,7 @@ from std_msgs.msg import Header, Float64MultiArray
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from geometry_msgs.msg import Point, Polygon
+from ROS_3D_BoundingBox.msg import Location, LocationArray
 
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -84,7 +85,7 @@ class MakeBoundingBox():
         #self.pcl_sub = rospy.Subscriber("/camera/depth_registered/points", PointCloud2, self.pcl_callback)
         # publishers
         self.img_detected_pub = rospy.Publisher("ROS_3D_BBox/img_detected_frame", Image, queue_size=100)
-        self.location_pub = rospy.Publisher("ROS_3D_BBox/location_array", Polygon, queue_size=100)
+        self.location_pub = rospy.Publisher("ROS_3D_BBox/location_array", LocationArray, queue_size=100)
         self.rate = rospy.Rate(1)
 
 
@@ -155,30 +156,28 @@ class MakeBoundingBox():
             alpha += self.angle_bins[argmax]
             alpha -= np.pi
 
-            print(dim)
-            location, ret_img = self.plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
-            loc_point = Point()
-            loc_point.x, loc_point.y, loc_point.z = location[0], location[1], location[2]
-            locations.append(loc_point)
-            # print('Estimated pose: %s'%location)
             
-
+            location, ret_img = self.plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
+            loc_msg = Location()
+            loc_msg.point.x, loc_msg.point.y, loc_msg.point.z = location[0], location[1], location[2]
+            loc_msg.size.x, loc_msg.size.y, loc_msg.size.z =  dim[0], dim[1], dim[2]
+            loc_msg.alpha = alpha
+            loc_msg.theta_ray = theta_ray
+            locations.append(loc_msg)
+            
         try:
             img_msg = self.bridge.cv2_to_imgmsg(ret_img, 'bgr8')
         except CvBridgeError as e:
             print(e)
 
-        loc_msg = Polygon(locations)
+        loc_arr_msg = LocationArray(locations)
         
-        
-        
-
         self.img_detected_pub.publish(img_msg)
-        self.location_pub.publish(loc_msg)
+        self.location_pub.publish(loc_arr_msg)
         print("\n")
         print('Got %s poses in %.3f seconds'%(len(detections), time.time() - start_time))
         print('-------------')
-        print(locations)
+
         
 if __name__ == '__main__':
     rospy.init_node('Bbox_Node', anonymous=True)
