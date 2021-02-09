@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""
-Images must be in ./Kitti/testing/image_2/ and camera matricies in ./Kitti/testing/calib/
 
-Uses YOLO to obtain 2D box, PyTorch to get 3D box, plots both
-
-SPACE bar for next image, any other key to exit
-"""
 import rospy
 # import tf
 # from tf.transformations import quaternion_from_euler as q
@@ -88,7 +82,6 @@ class MakeBoundingBox():
         self.location_pub = rospy.Publisher("ROS_3D_BBox/location_array", LocationArray, queue_size=100)
         self.rate = rospy.Rate(1)
 
-
     def plot_regressed_3d_bbox(self, img, cam_to_img, box_2d, dimensions, alpha, theta_ray, img_2d=None):
 
         # the math! returns X, the corners used for constraint
@@ -102,7 +95,6 @@ class MakeBoundingBox():
         ret_img = plot_3d_box(img, cam_to_img, orient, dimensions, location) # 3d boxes
 
         return location, ret_img
-
 
     def rgb_callback(self, img_data):
         
@@ -156,27 +148,34 @@ class MakeBoundingBox():
             alpha += self.angle_bins[argmax]
             alpha -= np.pi
 
-            
             location, ret_img = self.plot_regressed_3d_bbox(img, proj_matrix, box_2d, dim, alpha, theta_ray, truth_img)
             loc_msg = Location()
             loc_msg.point.x, loc_msg.point.y, loc_msg.point.z = location[0], location[1], location[2]
             loc_msg.size.x, loc_msg.size.y, loc_msg.size.z =  dim[0], dim[1], dim[2]
             loc_msg.alpha = alpha
             loc_msg.theta_ray = theta_ray
+            loc_msg.object_type = detection.detected_class
+            
             locations.append(loc_msg)
             
         try:
             img_msg = self.bridge.cv2_to_imgmsg(ret_img, 'bgr8')
         except CvBridgeError as e:
-            print(e)
-
-        loc_arr_msg = LocationArray(locations)
+                print(e)
         
+        loc_msg_header = Header()
+        loc_msg_header.frame_id = 'locations array'
+        loc_msg_header.stamp = img_msg.header.stamp
+        loc_arr_msg = LocationArray(loc_msg_header, locations)
+
         self.img_detected_pub.publish(img_msg)
         self.location_pub.publish(loc_arr_msg)
         print("\n")
-        print('Got %s poses in %.3f seconds'%(len(detections), time.time() - start_time))
+        print('Got %s poses in %.3f seconds FPS: %.2f'%(len(detections), time.time() - start_time, 1/(time.time() - start_time)))
         print('-------------')
+        with open('data.csv', 'a') as f:
+            f.write(str(len(detections))+','+str(time.time() - start_time)+','+str(1/(time.time() - start_time))+'\n')
+        
 
         
 if __name__ == '__main__':
